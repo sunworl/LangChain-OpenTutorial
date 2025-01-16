@@ -1,14 +1,10 @@
-try:
-    from .vectordbinterface import VectorDBInterface
-except:
-    from vectordbinterface import VectorDBInterface
 import neo4j
 from langchain_core.documents import Document
 from typing import List, Union, Dict, Any, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm.auto import tqdm
 from hashlib import md5
-import os
+import os, time
 
 METRIC = {
     "cosine": "COSINE",
@@ -31,15 +27,16 @@ class Neo4jDB:
         text_node_property=None,
     ):
         if uri is None:
-            uri=os.environ.get("NEO4J_URI", None)
+            uri = os.environ.get("NEO4J_URI", None)
         if username is None:
-            username=os.environ.get("NEO4J_USERNAME", None)
+            username = os.environ.get("NEO4J_USERNAME", None)
         if password is None:
-            password=os.environ.get("NEO4J_PASSWORD", None)
+            password = os.environ.get("NEO4J_PASSWORD", None)
 
-        assert all([uri, username, password]), "You must set NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD environmental variables or initialize Neo4jDB class by pass the variables directly"
+        assert all(
+            [uri, username, password]
+        ), "You must set NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD environmental variables or initialize Neo4jDB class by pass the variables directly"
 
-        
         if embedding is not None:
             assert "embed_query" in dir(embedding) and "embed_documents" in dir(
                 embedding
@@ -151,7 +148,8 @@ class Neo4jDB:
         )
 
     @classmethod
-    def _return_exist_index(cls,
+    def _return_exist_index(
+        cls,
         client,
         uri,
         username,
@@ -163,19 +161,20 @@ class Neo4jDB:
         metric: str = "cosine",
         node_label: str = "Chunk",
         _database: str = "neo4j",
-        **kwargs,):
+        **kwargs,
+    ):
         return cls(
-                uri=uri,
-                username=username,
-                password=password,
-                embedding=embedding,
-                index_name=index_name,
-                node_label=node_label,
-                _database=_database,
-                metric=metric,
-                embedding_node_property=embedding_node_property,
-                text_node_property=text_node_property,
-            )
+            uri=uri,
+            username=username,
+            password=password,
+            embedding=embedding,
+            index_name=index_name,
+            node_label=node_label,
+            _database=_database,
+            metric=metric,
+            embedding_node_property=embedding_node_property,
+            text_node_property=text_node_property,
+        )
 
     @classmethod
     def _create_new_index(
@@ -576,7 +575,7 @@ class Neo4jDB:
         return result_ids
 
     def upsert_documents_parallel(
-        self, documents, batch_size=32, max_workers=10, ids = None, **kwargs
+        self, documents, batch_size=32, max_workers=10, ids=None, **kwargs
     ):
         """Add or update documents in the vectorstore parallel.
 
@@ -620,7 +619,8 @@ class Neo4jDB:
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = [
-                executor.submit(self.upsert_documents, batch, ids=ids) for batch, ids in zip(doc_bathces, id_batches)
+                executor.submit(self.upsert_documents, batch, ids=ids)
+                for batch, ids in zip(doc_bathces, id_batches)
             ]
             results = []
             for future in tqdm(
@@ -662,7 +662,6 @@ class Neo4jDB:
         Returns:
             - List of nodes if successful, else raise error
         """
-        print(query)
         try:
             _result = self.client.execute_query(query)
         except Exception as e:
@@ -675,14 +674,14 @@ class Neo4jDB:
             return result
 
     def scroll_by_filter(
-            self,
-            filters=None,
-            ids=None,
-            limit=10,
-            include_embedding=False,
-            include_meta=None,
-            **kwargs,
-        ) -> List[Dict]:
+        self,
+        filters=None,
+        ids=None,
+        limit=10,
+        include_embedding=False,
+        include_meta=None,
+        **kwargs,
+    ) -> List[Dict]:
         """Query nodes by filter or id
         If none of filter or id provided, will return all nodes.
         If this method is called directly from client without index_name set, all nodes will be returned.
@@ -748,13 +747,13 @@ class Neo4jDB:
         return results
 
     def scroll_by_ids(
-            self,
-            ids=None,
-            limit=10,
-            include_embedding=False,
-            include_meta=None,
-            **kwargs,
-        ) -> List[Dict]:
+        self,
+        ids=None,
+        limit=10,
+        include_embedding=False,
+        include_meta=None,
+        **kwargs,
+    ) -> List[Dict]:
         """Query nodes by filter or id
         If none of filter or id provided, will return all nodes.
         If this method is called directly from client without index_name set, all nodes will be returned.
@@ -776,7 +775,7 @@ class Neo4jDB:
             prefix_query = f"MATCH (n:{label})\n"
         else:
             prefix_query = "MATCH (n)\n"
-        
+
         if ids is not None:
             if not isinstance(ids, list):
                 ids = [ids]
@@ -806,18 +805,41 @@ class Neo4jDB:
 
         return results
 
-    def scroll_nodes(self, filters=None, ids=None, query=None, limit=10, include_embedding=False, include_meta=None, **kwargs):
+    def scroll_nodes(
+        self,
+        filters=None,
+        ids=None,
+        query=None,
+        limit=10,
+        include_embedding=False,
+        include_meta=None,
+        **kwargs,
+    ):
         if filters is not None:
-            print('by filter')
-            return self.scroll_by_filter(filters=filters, include_embedding=include_embedding, include_meta=include_meta, limit=limit)
+            print("Scroll nodes by filter")
+            return self.scroll_by_filter(
+                filters=filters,
+                include_embedding=include_embedding,
+                include_meta=include_meta,
+                limit=limit,
+            )
         elif ids is not None:
-            print('by ids')
-            return self.scroll_by_ids(ids=ids, include_embedding=include_embedding, include_meta=include_meta, limit=limit)
+            print("Scroll nodes by ids")
+            return self.scroll_by_ids(
+                ids=ids,
+                include_embedding=include_embedding,
+                include_meta=include_meta,
+                limit=limit,
+            )
         elif query is not None:
-            print('by query')
+            print("Scroll nodes by query")
             return self.scroll_by_query(query=query)
         else:
-            return self.scroll_by_filter(include_embedding=include_embedding, include_meta=include_meta, limit=limit)
+            return self.scroll_by_filter(
+                include_embedding=include_embedding,
+                include_meta=include_meta,
+                limit=limit,
+            )
 
     @staticmethod
     def preprocess_documents(
@@ -827,7 +849,7 @@ class Neo4jDB:
 
         if use_basename:
             assert metadata.get("source", None) is not None, "source must be provided"
-            metadata['source'] = metadata['source'].split('/')[-1]
+            metadata["source"] = metadata["source"].split("/")[-1]
 
         result_docs = []
         for idx, doc in enumerate(split_docs):
