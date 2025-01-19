@@ -25,6 +25,7 @@ class Neo4jDB:
         metric=None,
         embedding_node_property=None,
         text_node_property=None,
+        dimension=None,
     ):
         if uri is None:
             uri = os.environ.get("NEO4J_URI", None)
@@ -52,6 +53,7 @@ class Neo4jDB:
         self.embedding_node_property = embedding_node_property
         self.text_node_property = text_node_property
         self.metric = metric
+        self.dimension = dimension
 
         try:
             self.client = neo4j.GraphDatabase.driver(
@@ -163,6 +165,10 @@ class Neo4jDB:
         _database: str = "neo4j",
         **kwargs,
     ):
+        query = f"SHOW INDEX YIELD * WHERE name='{index_name}' RETURN labelsOrTypes, properties"
+        info = client.execute_query(query).records[0]
+        node_label = info["labelsOrTypes"][0]
+        embedding_node_property = info["properties"][0]
         return cls(
             uri=uri,
             username=username,
@@ -265,6 +271,7 @@ class Neo4jDB:
                 metric=metric,
                 embedding_node_property=embedding_node_property,
                 text_node_property=text_node_property,
+                dimension=dimension,
             )
 
     @classmethod
@@ -779,7 +786,6 @@ class Neo4jDB:
         if ids is not None:
             if not isinstance(ids, list):
                 ids = [ids]
-            filter_queries = []
             filter_query = f"n.id IN {ids}"
 
         limit_query = "\nRETURN n" if limit is None else f"\nRETURN n LIMIT {limit}"
@@ -861,3 +867,95 @@ class Neo4jDB:
             result_docs.append(doc)
 
         return result_docs
+
+    def search(
+        self,
+        query=None,
+        embeded_query=None,
+        index_name=None,
+        filters=[],
+        with_score=False,
+        top_k=3,
+        **kwargs,
+    ):
+        assert self.index_name is not None, "You must provide index name"
+
+        if query is None and embeded_query is None:
+            raise ValueError("You must provide either query or embeded values of query")
+
+        if query is not None and embeded_query is not None:
+            print(
+                "Both query and embeded value of query passed. Using embded value of query"
+            )
+
+        if embeded_query is None:
+            embeded_query = self.embedding.embed_query(query)
+
+        if kwargs.get("include_vector"):
+            result_query = (
+                f"MATCH (n:`{self.node_label}`) "
+                f"WITH n, vector.similarity.cosine($embeded, n.embedding) AS score "
+                f"ORDER BY score DESC "
+                f"RETURN r, score LIMIT $k "
+                f"n {{.*, `{self.text_node_property}`: Null, `{self.embedding_node_property}`: Null}} AS metadata LIMIT $k "
+            )
+        else:
+            result_query = (
+                f"MATCH (n:`{self.node_label}`) "
+                f"WITH n, vector.similarity.cosine($embeded, n.embedding) AS score "
+                f"ORDER BY score DESC "
+                f"RETURN score, "
+                f"n {{.*, `{self.embedding_node_property}`: Null}} AS metadata LIMIT $k "
+            )
+
+        parameters = {
+            "k": top_k,
+            "embeded": embeded_query,
+        }
+
+        try:
+            _result = self.client.execute_query(result_query, parameters_=parameters)
+        except:
+            _result = self.client.session(database=self._database).run(
+                neo4j.Query(text=result_query), parameters
+            )
+
+        result = []
+        for _r in _result.records:
+            result.append(
+                {
+                    "text": _r["metadata"].pop("text"),
+                    "metadata": _r["metadata"],
+                    "score": round(float(_r["score"]), 3),
+                }
+            )
+
+        return result
+
+    @staticmethod
+    def remove_lucene_chars(text: str) -> str:
+        """Remove Lucene special characters"""
+        special_chars = [
+            "+",
+            "-",
+            "&",
+            "|",
+            "!",
+            "(",
+            ")",
+            "{",
+            "}",
+            "[",
+            "]",
+            "^",
+            '"',
+            "~",
+            "*",
+            "?",
+            ":",
+            "\\",
+        ]
+        for char in special_chars:
+            if char in text:
+                text = text.replace(char, " ")
+        return text.strip()
