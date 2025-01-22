@@ -17,16 +17,30 @@ from uuid import uuid4
 
 
 def _results_to_docs_and_scores(results: Any) -> List[Tuple[Document, float]]:
-    return [
-        # TODO: Chroma can do batch querying,
-        # we shouldn't hard code to the 1st result
-        (Document(page_content=result[0], metadata=result[1] or {}), result[2])
-        for result in zip(
-            results["documents"][0],
-            results["metadatas"][0],
-            results["distances"][0],
-        )
-    ]
+    # return [
+    #     # TODO: Chroma can do batch querying,
+    #     # we shouldn't hard code to the 1st result
+    #     (
+    #         Document(page_content=result[0], metadata=result[1] or {}),
+    #         result[2],
+    #     )
+    #     for result in zip(
+    #         results["documents"][0],
+    #         results["metadatas"][0],
+    #         results["distances"][0],
+    #     )
+    # ]
+    docs_and_scores = []
+    for doc, metadata, score, doc_id in zip(
+        results["documents"][0],  # 문서 내용
+        results["metadatas"][0],  # 메타데이터
+        results["distances"][0],  # 거리 (유사도 점수)
+        results["ids"][0],  # 문서 ID
+    ):
+        document = Document(page_content=doc, metadata=metadata)
+        document.metadata["id"] = doc_id  # id를 metadata에 추가
+        docs_and_scores.append((document, score))
+    return docs_and_scores
 
 
 class ChromaDB(VectorDBInterface):
@@ -217,7 +231,7 @@ class ChromaDB(VectorDBInterface):
             reverse=True,
         )
 
-    def __query_collection(
+    def _query_collection(
         self,
         query_texts: Optional[List[str]] = None,
         query_embeddings: Optional[List[List[float]]] = None,
@@ -247,7 +261,7 @@ class ChromaDB(VectorDBInterface):
         """Run similarity search with chroma with distance(from langchain-chroma)"""
 
         if self._embeddings is None:
-            results = self.__query_collection(
+            results = self._query_collection(
                 query_texts=[query],
                 n_results=k,
                 where=filter,
@@ -256,7 +270,7 @@ class ChromaDB(VectorDBInterface):
             )
         else:
             query_embedding = self._embeddings.embed_query(query)
-            results = self.__query_collection(
+            results = self._query_collection(
                 query_embeddings=[query_embedding],
                 n_results=k,
                 where=filter,
