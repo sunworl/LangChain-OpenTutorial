@@ -1300,11 +1300,11 @@ prompt = hub.pull("rlm/rag-prompt")
 prompt.pretty_print()
 ```
 
-<pre class="custom">================================[1m Human Message [0m=================================
+<pre class="custom">================================ Human Message =================================
     
     You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-    Question: [33;1m[1;3m{question}[0m 
-    Context: [33;1m[1;3m{context}[0m 
+    Question: {question} 
+    Context: {context} 
     Answer:
 </pre>
 

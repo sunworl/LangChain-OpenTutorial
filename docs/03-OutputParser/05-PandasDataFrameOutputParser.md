@@ -109,9 +109,9 @@ package.install(
 )
 ```
 
-<pre class="custom">[31mERROR: Could not find a version that satisfies the requirement pprint (from versions: none)[0m[31m
-    [0m[31mERROR: No matching distribution found for pprint[0m[31m
-    [0m</pre>
+<pre class="custom">ERROR: Could not find a version that satisfies the requirement pprint (from versions: none)
+    ERROR: No matching distribution found for pprint
+</pre>
 
 ```python
 # Set environment variables

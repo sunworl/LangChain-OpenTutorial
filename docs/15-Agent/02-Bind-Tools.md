@@ -447,14 +447,14 @@ print(result["output"])
 
 <pre class="custom">
     
-    [1m> Entering new AgentExecutor chain...[0m
-    [32;1m[1;3m
+    > Entering new AgentExecutor chain...
+    
     Invoking: `get_word_length` with `{'word': 'LangChain OpenTutorial'}`
     
     
-    [0m[36;1m[1;3m22[0m[32;1m[1;3mThe length of the text "LangChain OpenTutorial" is 22 characters.[0m
+    22The length of the text "LangChain OpenTutorial" is 22 characters.
     
-    [1m> Finished chain.[0m
+    > Finished chain.
     The length of the text "LangChain OpenTutorial" is 22 characters.
 </pre>
 
@@ -472,14 +472,14 @@ print(114.5 + 121.2)
 
 <pre class="custom">
     
-    [1m> Entering new AgentExecutor chain...[0m
-    [32;1m[1;3m
+    > Entering new AgentExecutor chain...
+    
     Invoking: `add_function` with `{'a': 114.5, 'b': 121.2}`
     
     
-    [0m[33;1m[1;3m235.7[0m[32;1m[1;3mThe result of 114.5 + 121.2 is 235.7.[0m
+    235.7The result of 114.5 + 121.2 is 235.7.
     
-    [1m> Finished chain.[0m
+    > Finished chain.
     The result of 114.5 + 121.2 is 235.7.
     
     ==========
@@ -505,26 +505,26 @@ print(114.5 + 121.2 + 34.2 + 110.1)
 
 <pre class="custom">
     
-    [1m> Entering new AgentExecutor chain...[0m
-    [32;1m[1;3m
+    > Entering new AgentExecutor chain...
+    
     Invoking: `add_function` with `{'a': 114.5, 'b': 121.2}`
     
     
-    [0m[33;1m[1;3m235.7[0m[32;1m[1;3m
+    235.7
     Invoking: `add_function` with `{'a': 235.7, 'b': 34.2}`
     
     
-    [0m[33;1m[1;3m269.9[0m[32;1m[1;3m
+    269.9
     Invoking: `add_function` with `{'a': 34.2, 'b': 110.1}`
     
     
-    [0m[33;1m[1;3m144.3[0m[32;1m[1;3m
+    144.3
     Invoking: `add_function` with `{'a': 269.9, 'b': 110.1}`
     
     
-    [0m[33;1m[1;3m380.0[0m[32;1m[1;3mThe result of adding 114.5, 121.2, 34.2, and 110.1 is 380.0.[0m
+    380.0The result of adding 114.5, 121.2, 34.2, and 110.1 is 380.0.
     
-    [1m> Finished chain.[0m
+    > Finished chain.
     The result of adding 114.5, 121.2, 34.2, and 110.1 is 380.0.
     
     ==========
@@ -548,12 +548,12 @@ print(result["output"])
 
 <pre class="custom">
     
-    [1m> Entering new AgentExecutor chain...[0m
-    [32;1m[1;3m
+    > Entering new AgentExecutor chain...
+    
     Invoking: `bbc_news_crawl` with `{'news_url': 'https://www.bbc.com/news/articles/cew52g8p2lko'}`
     
     
-    [0m[38;5;200m[1;3mNew AI hub 'to create 1,000 jobs' on Merseyside
+    New AI hub 'to create 1,000 jobs' on Merseyside
     
     ----------
     
@@ -583,8 +583,8 @@ print(result["output"])
     
     The BBC has asked the Department for Science, Innovation and Technology for more details about Merseyside's AI hub plans.
     
-    Listen to the best of BBC Radio Merseyside on Sounds and follow BBC Merseyside on Facebook, X, and Instagram and watch BBC North West Tonight on BBC iPlayer.[0m[32;1m[1;3mA new Artificial Intelligence (AI) hub is planned for Merseyside, expected to create 1,000 jobs over the next three years. Prime Minister Sir Keir Starmer aims to position the UK as a global AI "superpower" to boost economic growth and improve public services. The global IT company Kyndryl will establish the tech hub in the Liverpool City Region. Metro Mayor Steve Rotheram praised the investment, highlighting its benefits for the area. The government's AI Opportunities Action Plan, supported by leading tech firms, has secured £14 billion for various projects, including growth zones, creating 13,250 jobs. Rotheram emphasized the region's leadership in the UK's AI revolution and its readiness to leverage AI and digital technology for economic and social benefits.[0m
+    Listen to the best of BBC Radio Merseyside on Sounds and follow BBC Merseyside on Facebook, X, and Instagram and watch BBC North West Tonight on BBC iPlayer.A new Artificial Intelligence (AI) hub is planned for Merseyside, expected to create 1,000 jobs over the next three years. Prime Minister Sir Keir Starmer aims to position the UK as a global AI "superpower" to boost economic growth and improve public services. The global IT company Kyndryl will establish the tech hub in the Liverpool City Region. Metro Mayor Steve Rotheram praised the investment, highlighting its benefits for the area. The government's AI Opportunities Action Plan, supported by leading tech firms, has secured £14 billion for various projects, including growth zones, creating 13,250 jobs. Rotheram emphasized the region's leadership in the UK's AI revolution and its readiness to leverage AI and digital technology for economic and social benefits.
     
-    [1m> Finished chain.[0m
+    > Finished chain.
     A new Artificial Intelligence (AI) hub is planned for Merseyside, expected to create 1,000 jobs over the next three years. Prime Minister Sir Keir Starmer aims to position the UK as a global AI "superpower" to boost economic growth and improve public services. The global IT company Kyndryl will establish the tech hub in the Liverpool City Region. Metro Mayor Steve Rotheram praised the investment, highlighting its benefits for the area. The government's AI Opportunities Action Plan, supported by leading tech firms, has secured £14 billion for various projects, including growth zones, creating 13,250 jobs. Rotheram emphasized the region's leadership in the UK's AI revolution and its readiness to leverage AI and digital technology for economic and social benefits.
 </pre>
