@@ -1,8 +1,7 @@
 {
     "graphs": {
-      "people_researcher": "./multiagent.py:graph"
+      "people_researcher": "./output_script.py:graph"
     },
-    "python_version": "3.11",
     "env": "./.env",
     "dependencies": ["."]
   }
