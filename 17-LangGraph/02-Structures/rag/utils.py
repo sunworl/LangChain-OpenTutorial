@@ -17,17 +17,17 @@ def format_searched_docs(docs):
 
 
 def format_task(tasks):
-    # 결과를 저장할 빈 리스트 생성
+    # Create an empty list to store the results
     task_time_pairs = []
 
-    # 리스트를 순회하면서 각 항목을 처리
+    # Traverse the list and process each item
     for item in tasks:
-        # 콜론(:) 기준으로 문자열을 분리
+        # Separate strings by colon (:)
         task, time_str = item.rsplit(":", 1)
-        # '시간' 문자열을 제거하고 정수로 변환
+        # Remove the string 'time' and convert it to an integer
         time = int(time_str.replace("시간", "").strip())
-        # 할 일과 시간을 튜플로 만들어 리스트에 추가
+        # Create to-dos and times as tuples and add them to a list
         task_time_pairs.append((task, time))
 
-    # 결과 출력
+    # Output the results
     return task_time_pairs

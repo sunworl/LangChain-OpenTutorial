@@ -15,16 +15,16 @@ class RetrievalChain(ABC):
 
     @abstractmethod
     def load_documents(self, source_uris):
-        """loader를 사용하여 문서를 로드합니다."""
+        """Load the document using loader."""
         pass
 
     @abstractmethod
     def create_text_splitter(self):
-        """text splitter를 생성합니다."""
+        """Create a text splitter."""
         pass
 
     def split_documents(self, docs, text_splitter):
-        """text splitter를 사용하여 문서를 분할합니다."""
+        """Use the text splitter to split the document."""
         return text_splitter.split_documents(docs)
 
     def create_embedding(self):
@@ -36,7 +36,7 @@ class RetrievalChain(ABC):
         )
 
     def create_retriever(self, vectorstore):
-        # MMR을 사용하여 검색을 수행하는 retriever를 생성합니다.
+        # Create a retriever that performs searches using the MMR algorithm.
         dense_retriever = vectorstore.as_retriever(
             search_type="similarity", search_kwargs={"k": self.k}
         )
