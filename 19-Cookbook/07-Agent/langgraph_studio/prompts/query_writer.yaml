@@ -6,10 +6,6 @@ template: |
 
   Generate at most {max_search_queries} search queries that will help gather the following information:
 
-  <schema>
-  {info}
-  </schema>
-
   <user_notes>
   {user_notes}
   </user_notes>
@@ -22,4 +18,4 @@ template: |
 
   Create a focused query that will maximize the chances of finding schema-relevant information about the person.
   Remember we are interested in determining their work experience mainly.
-input_variables: ["person", "max_search_queries", "info", "user_notes"]
+input_variables: ["person", "max_search_queries", "user_notes"]

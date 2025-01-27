@@ -4,10 +4,6 @@ template: |
 
   The following schema shows the type of information we're interested in:
 
-  <schema>
-  {info}
-  </schema>
-
   You have just scraped website content. Your task is to take clear, organized notes about a person, focusing on topics relevant to our interests.
 
   <Website contents>
@@ -27,4 +23,4 @@ template: |
   5. Note when important information appears to be missing or unclear
 
   Remember: Don't try to format the output to match the schema - just take clear notes that capture all relevant information.
-input_variables: ["people", "info", "content", "user_notes"]
+input_variables: ["people", "content", "user_notes"]

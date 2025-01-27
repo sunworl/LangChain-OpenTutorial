@@ -1,0 +1,17 @@
+_type: "prompt"
+template: |
+  We have three sets of notes:
+
+  1) Person Notes:
+  {person_notes}
+
+  2) Company Notes:
+  {company_notes}
+
+  3) Project Notes:
+  {project_notes}
+
+  Please merge these notes into a single coherent summary. 
+  Remove any duplicate or conflicting information. 
+  The result should flow logically, covering person's details, the company background, and key project info.
+input_variables: ["person_notes", "company_notes", "project_notes"]
