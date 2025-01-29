@@ -43,14 +43,14 @@ from langchain_anthropic import ChatAnthropic
 rate_limiter = InMemoryRateLimiter(
     requests_per_second=4,
     check_every_n_seconds=0.1,
-    max_bucket_size=10,  # Controls the maximum burst size.
+    max_bucket_size=10, 
 )
 
 llm = ChatAnthropic(
     model="claude-3-5-sonnet-latest", temperature=0, rate_limiter=rate_limiter
 )
 
-### Get tavil api key
+# Get tavily api key
 from tavily import AsyncTavilyClient
 # Search
 tavily_async_client = AsyncTavilyClient()
@@ -340,17 +340,17 @@ SEARCH_COMPANY_PROMPT = """You are a search query generator tasked with creating
   Remember we are interested in understanding the company's business context, culture, and market position.
 """
 
+import asyncio
+
 async def generate_queries_for_company(state: OverallState, config: RunnableConfig) -> dict[str, Any]:
     """
     Generate search queries specifically for the company, 
     possibly merging with user-provided queries (company_queries in state).
     """
 
-    # 1) 기본 설정값 로딩
     configurable = Configuration.from_runnable_config(config)
     max_search_queries = configurable.max_search_queries
 
-    # Format system instructions
     person_str = f"Email: {state.person['email']}"
     if "name" in state.person:
         person_str += f" Name: {state.person['name']}"
@@ -362,7 +362,6 @@ async def generate_queries_for_company(state: OverallState, config: RunnableConf
         person_str += f" Company: {state.person['company']}"
 
 
-    # 4) LLM에 쿼리 생성을 요청
     structured_llm = llm.with_structured_output(Queries)  # Queries: pydantic model for array of strings
 
     prompt = SEARCH_COMPANY_PROMPT.format(
@@ -371,7 +370,6 @@ async def generate_queries_for_company(state: OverallState, config: RunnableConf
         max_search_queries=max_search_queries,
     )
 
-    # 5) LLM 호출 (비동기)
     llm_result = cast(
         Queries,
         await structured_llm.ainvoke(
@@ -385,10 +383,8 @@ async def generate_queries_for_company(state: OverallState, config: RunnableConf
         )
     )
 
-    # 6) LLM이 생성한 쿼리를 리스트로 변환
     generated_queries = [q for q in llm_result.queries]
 
-    # 8) 반환
     return {"company_search_queries": generated_queries}
 
 COMPANY_INFO_PROMPT = """You are doing web research on company.
@@ -414,14 +410,12 @@ COMPANY_INFO_PROMPT = """You are doing web research on company.
 
   Remember: Just take clear notes that capture all relevant information."""
 
-import asyncio
 async def research_company(state: OverallState, config: RunnableConfig) -> dict[str, Any]:
     """
     Use 'company_search_queries' to search relevant info about the company,
     then produce 'company_notes'.
     """
 
-    # 2) getConfig
     configurable = Configuration.from_runnable_config(config)
     max_search_results = configurable.max_search_results
 
@@ -446,7 +440,6 @@ async def research_company(state: OverallState, config: RunnableConfig) -> dict[
         search_docs, max_tokens_per_source=1000, include_raw_content=True
     )
 
-    # Generate structured notes relevant to the extraction schema
     p = COMPANY_INFO_PROMPT.format(
         content=source_str,
         user_notes=state.user_notes,
@@ -683,21 +676,21 @@ async def generate_questions(state: OverallState) -> dict[str, Any]:
     return {"Questions": str(llm_result.content)}
 
 REFLECTION_PROMPT = """
-  You are verifying if the given interview question is well-supported by the combined notes.
-  You do NOT need to provide a direct answer to the question yourself.
+  You are verifying if the following interview question is reasonably supported by the combined notes.
+  If the question is even partially related to or inspired by the notes, set `is_satisfactory` to True.
+  Only set `is_satisfactory` to False if it clearly contradicts or has no logical connection.
 
   <Question>
   {Question}
   </Question>
 
-  The combined notes are:
   <combined_notes>
   {combine_notes}
   </combined_notes>
 
-  Instead, consider these points:
-  1. Does the question logically follow from or relate to the content in the combined notes?
-
+  Important:
+  - If any part of the combined notes is relevant to this question, consider it supported.
+  - Only answer with 'true' or 'false' as is_satisfactory. Provide a brief explanation.
 """
 
 def reflection(state: OverallState) -> dict[str, Any]:
@@ -764,26 +757,23 @@ builder.add_node("generate_queries_for_company", generate_queries_for_company)
 builder.add_node("research_company", research_company)
 builder.add_node("extract_project_queries", extract_project_queries)
 
-# -- 노드 간 연결(Edges) ---
+# -- Node Connections (Edges) ---
 
-# 1) 사람 관련 조사
+
 builder.add_edge(START, "generate_queries")
 builder.add_edge("generate_queries", "research_person")
 builder.add_edge("research_person", "extract_project_queries")
 builder.add_edge("extract_project_queries", "research_projects")
 
-# 2) 회사 관련 조사
 builder.add_edge(START, "generate_queries_for_company")
 builder.add_edge("generate_queries_for_company", "research_company")
 
-# 3) 회사/프로젝트 두 갈래가 모두 끝나면, combine_notes로 연결
 builder.add_edge(["research_company", "research_projects"], "combine_notes")
 
-# 5) 후속 단계
 builder.add_edge("combine_notes", "generate_questions")
 builder.add_edge("generate_questions", "reflection")
 builder.add_conditional_edges("reflection", route_from_reflection)
 
-# 그래프 컴파일
+# Compile the graph
 graph = builder.compile()
 
