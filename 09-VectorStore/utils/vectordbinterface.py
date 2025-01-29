@@ -160,3 +160,69 @@ class VectorDBInterface(
 #         """문서를 Pinecone에 업서트"""
 #         index = self.pc.Index(index_name)
 #         index.upsert(vectors=documents, namespace=kwargs.get("namespace"))
+
+"""
+New Interface for VectorDB CRUD
+"""
+# {DB이름}DocumentManager (e.g. ChromaDocumentManager)
+from typing import Optional, List, Iterable, Any, Dict
+
+
+class DocumentManagerInterface(ABC):
+    """
+    문서 insert/update (upsert, upsert_parallel)
+    문서 search by query (search)
+    문서 delete by id, delete by filter (delete)
+    """
+
+    @abstractmethod
+    def upsert(
+        self,
+        texts: Iterable[str],
+        metadatas: Optional[List[Dict]] = None,
+        ids: Optional[List[str]] = None,
+        **kwargs: Any
+    ) -> None:
+        """문서를 업서트합니다."""
+        pass
+
+    @abstractmethod
+    def upsert_parallel(
+        self,
+        texts: Iterable[str],
+        metadatas: Optional[List[Dict]] = None,
+        ids: Optional[List[str]] = None,
+        batch_size: int = 32,
+        workers: int = 10,
+        **kwargs: Any
+    ) -> None:
+        """병렬로 문서를 업서트합니다."""
+        pass
+
+    @abstractmethod
+    def search(self, query: str, k: int = 10, **kwargs: Any) -> List[Document]:
+        """쿼리를 수행하고 관련 문서를 반환합니다.
+        기본 기능: query (문자열) -> 비슷한 문서 k개 반환
+
+        cosine_similarity 써치하는 것 의미 **문제될 경우 이슈제기
+
+        -그외 기능 (추후 확장)
+        metatdata search
+        이미지 서치할 때 벡터 받는 것
+        """
+        pass
+
+    @abstractmethod
+    def delete(
+        self,
+        ids: Optional[List[str]] = None,
+        filters: Optional[Dict] = None,
+        **kwargs: Any
+    ) -> None:
+        """필터를 사용하여 문서를 삭제합니다.
+
+        ids: List of ids to delete. If None, delete all. Default is None.
+        filters: Dictionary of filters (querys) to apply. If None, no filters apply.
+
+        """
+        pass
