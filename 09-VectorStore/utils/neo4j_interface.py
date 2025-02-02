@@ -1,5 +1,5 @@
 import neo4j
-from .vectorstore_interface import DocumentManagerInterface
+from .vectorstore_interface import DocumentManager
 from langchain_core.documents import Document
 from typing import List, Union, Dict, Any, Optional, Iterable
 from typing import List, Union, Dict, Any, Optional, Iterable
@@ -9,7 +9,7 @@ from hashlib import md5
 import os, time
 
 
-class Neo4jDBManager(DocumentManagerInterface):
+class Neo4jDBManager(DocumentManager):
     def __init__(self, client, index_name, embedding):
         self.index_name = index_name
         self.client = client
