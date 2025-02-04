@@ -168,7 +168,7 @@ New Interface for VectorDB CRUD
 from typing import Optional, List, Iterable, Any, Dict
 
 
-class DocumentManagerInterface(ABC):
+class DocumentManager(ABC):
     """
     문서 insert/update (upsert, upsert_parallel)
     문서 search by query (search)

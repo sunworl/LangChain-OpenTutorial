@@ -1,4 +1,4 @@
-from utils.vectordbinterface import DocumentManagerInterface
+from utils.vectordbinterface import DocumentManager
 from utils.vectordbinterface import Iterable, Any, Optional, List, Dict
 from chromadb.api import ClientAPI  # Client Type
 from chromadb.utils import embedding_functions
@@ -16,7 +16,7 @@ class CustomEmbeddingFunction(EmbeddingFunction):
         return self.embedding.embed_documents(input)
 
 
-class ChromaDocumentMangager(DocumentManagerInterface):
+class ChromaDocumentMangager(DocumentManager):
     def __init__(
         self, client: ClientAPI, embedding: Optional[Any] = None, **kwargs
     ) -> None:
