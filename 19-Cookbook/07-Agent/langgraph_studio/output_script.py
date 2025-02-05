@@ -14,7 +14,7 @@ if __name__ == "__main__":
 from langchain_opentutorial import package
 
 package.install(
-    ["langsmith", "langchain_anthropic", "langgraph", "tavily-python"],
+    ["langsmith", "langchain_anthropic", "langgraph", "tavily-python", "kora"],
     verbose=False,
     upgrade=False,
 )
@@ -28,7 +28,7 @@ set_env(
         "LANGCHAIN_API_KEY": "",
         "LANGCHAIN_TRACING_V2": "true",
         "LANGCHAIN_ENDPOINT": "https://api.smith.langchain.com",
-        "LANGCHAIN_PROJECT": "20-Multi-AgentWorkflowUsingLangGraphStudio",
+        "LANGCHAIN_PROJECT": "20-LangGraphStudio-MultiAgent",
     }
 )
 
@@ -114,12 +114,15 @@ class OverallState:
 
     is_satisfactory: bool = field(default=None)
     "True if all required fields are well populated, False otherwise"
-
+    
     combined_notes: str = field(default_factory=str)
+    "Consolidated research notes combining all gathered information into a single coherent document."
 
     project_queries: list[str] = field(default_factory=list)
+    "List of search queries specifically focused on finding project-related information."
 
     company_search_queries: list[str] = field(default=None)
+    "List of search queries generated for gathering company-specific information."
 
     reflection_steps_taken: int = field(default=0)
     "Number of times the reflection node has been executed"
@@ -215,17 +218,6 @@ def deduplicate_and_format_sources(
     return formatted_text.strip()
 
 
-def format_all_notes(completed_notes: list[str]) -> str:
-    """Format a list of notes into a string"""
-    formatted_str = ""
-    for idx, people_notes in enumerate(completed_notes, 1):
-        formatted_str += f"""
-{'='*60}
-People {idx}:
-{'='*60}
-Notes from research:
-{people_notes}"""
-    return formatted_str
 
 import os
 from dataclasses import dataclass, fields
@@ -314,6 +306,7 @@ def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, A
 
     # Queries
     query_list = [query for query in results.queries]
+    print(f"Generated queries: {query_list}")
     return {"search_queries": query_list}
 
 
@@ -758,7 +751,6 @@ builder.add_node("research_company", research_company)
 builder.add_node("extract_project_queries", extract_project_queries)
 
 # -- Node Connections (Edges) ---
-
 
 builder.add_edge(START, "generate_queries")
 builder.add_edge("generate_queries", "research_person")
