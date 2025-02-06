@@ -1,5 +1,5 @@
 # Interface
-from utils.vectordbinterface import VectorDBInterface
+from utils.chroma.base import VectorDBInterface
 
 # Chroma Python SDK
 import chromadb
