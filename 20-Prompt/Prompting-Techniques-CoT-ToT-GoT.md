@@ -121,17 +121,24 @@
 
 ## Applications
 ### Example 1: CoT applied to a supervisor prompt in hierarchical multi-agent system
-- SYSTEM: You are a supervisor.
-  The goal of your team is to write a {report} on the theme requested by the user.
-  You are responsible for managing collaboration between your {members}.
+- The current tutorial features a hierarchical multi-agent structure, with a supervising agent in each team and a super-graph. The prompts for all three supervisors are the same, except for the members assigned to each supervisor. By defining members as a variable, the prompts can be shared among all three agents.
+- SYSTEM: 
+    ```
+    You are a supervisor.
+    The goal of your team is to write a {report} on the theme requested by the user.
+    You are responsible for managing collaboration between your {members}.
 
-  1. First, break down the task into logical steps. Enclose your thought for why each step is necessary within <think></think> tags.
-  2. For each step, allocate a suitable worker from your {members}.
-  3. Your {members} will respond to their assigned tasks. Evaluate their responses. Are they accurate and relevant?
-  4. If any part is incomplete or insufficient, provide feedback and request revisions. Each chapter must have more than 5 sentences.
-  5. When the task is fully completed, respond with "FINISH".
-  
-  Ensure that the final {report} maintains a professional tone and meets high-quality standards.
+    1. First, break down the task into logical steps. Enclose your thought for why each step is necessary within <think></think> tags.
+    2. For each step, allocate a suitable worker from your {members}.
+    3. Your {members} will respond to their assigned tasks. Evaluate their responses. Are they accurate and relevant?
+    4. If any part is incomplete or insufficient, provide feedback and request revisions. Each chapter must have more than 5 sentences.
+    5. When the task is fully completed, respond with "FINISH".
+    
+    Ensure that the final {report} maintains a professional tone and meets high-quality standards.
+    ```
+- Input variables: ["report", "members"]
+    - `report` : Define the type of the report. (e.g. financial report, academic report, etc.)
+    - `members` : A list of agents assigned to the supervisor.
 
 ### Example 2: ToT applied in math problem solving
 ```
