@@ -2,7 +2,6 @@ import neo4j
 from .vectorstore_interface import DocumentManager
 from langchain_core.documents import Document
 from typing import List, Union, Dict, Any, Optional, Iterable
-from typing import List, Union, Dict, Any, Optional, Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm.auto import tqdm
 from hashlib import md5
