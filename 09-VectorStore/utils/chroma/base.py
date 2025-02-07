@@ -2,13 +2,17 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, List
 from langchain_core.documents import Document
 
+"""
+This file is legacy, It will be replaced in the near future.
+"""
+
 
 # ==========================================
-# 1️⃣ 인덱스 관리 인터페이스
+# 1️⃣ Index manage Interface
 # ==========================================
 class IndexManagerInterface(ABC):
     """
-    인덱스 관리 인터페이스
+    Index manage Interface
     """
 
     @abstractmethod
@@ -20,38 +24,38 @@ class IndexManagerInterface(ABC):
         pod_spec=None,
         **kwargs
     ) -> Any:
-        """인덱스를 생성하고 반환합니다. 즉, index_name으로 인덱스를 생성하고 생성이 완료되면 index_name을 반환하고, 없다면 None을 반환합니다."""
+        """Create Index and return"""
         pass
 
     @abstractmethod
     def list_indexs(self) -> Any:
-        """인덱스 리스트를 반환합니다"""
+        """Return Index list"""
         pass
 
     @abstractmethod
     def get_index(self, index_name: str) -> Any:
-        """인덱스를 조회합니다. 즉, index_name을 가진 인덱스가 있는지 조회하고, 있다면 index_name을 반환하고, 없다면 None을 반환합니다."""
+        """Get Index"""
         pass
 
     @abstractmethod
     def delete_index(self, index_name: str) -> None:
-        """인덱스를 삭제합니다. 즉, index_name을 가진 인덱스를 삭제합니다."""
+        """Delete Index"""
         pass
 
 
 # ==========================================
-# 2️⃣ 문서 업서트 인터페이스
+# 2️⃣ Document Upsert
 # ==========================================
 class DocumentManagerInterface(ABC):
     """
-    문서 관리 인터페이스 (upsert, upsert_parallel)
+    (upsert, upsert_parallel)
     """
 
     @abstractmethod
     def upsert_documents(
         self, index_name: str, documents: List[Dict], **kwargs
     ) -> None:
-        """문서를 업서트합니다."""
+        """Upsert Document"""
         pass
 
     @abstractmethod
@@ -63,55 +67,52 @@ class DocumentManagerInterface(ABC):
         max_workers: int = 10,
         **kwargs
     ) -> None:
-        """병렬로 문서를 업서트합니다."""
+        """Upsert Document Parallel"""
         pass
 
 
 # ==========================================
-# 3️⃣ 문서 조회 및 삭제 인터페이스
+# 3️⃣ Document Search and Delete
 # ==========================================
 class QueryManagerInterface(ABC):
     """
-    문서 검색 및 삭제 인터페이스 (query, delete_by_filter)
+    (query, delete_by_filter)
     """
 
     @abstractmethod
     def query(
         self, index_name: str, query_vector: List[float], top_k: int = 10, **kwargs
     ) -> List[Document]:
-        """쿼리를 수행하고 관련 문서를 반환합니다."""
+        """Document Query"""
         pass
 
     @abstractmethod
     def delete_by_filter(self, index_name: str, filters: Dict, **kwargs) -> None:
-        """필터를 사용하여 문서를 삭제합니다."""
+        """Delete Document by filters"""
         pass
 
 
 # ==========================================
-# 4️⃣ 통합 인터페이스 (VectorDBInterface)
+# 4️⃣ Integration Interface(VectorDBInterface)
 # ==========================================
 class VectorDBInterface(
     IndexManagerInterface, DocumentManagerInterface, QueryManagerInterface, ABC
 ):
     """
-    벡터 데이터베이스의 통합 인터페이스
-    - 인덱스 관리
-    - 문서 업서트
-    - 문서 검색 및 삭제
+    Integration Interface for VectorDB
     """
 
     @abstractmethod
     def connect(self, **kwargs) -> None:
-        """DB 연결을 초기화합니다."""
+        """DB Connect init"""
         pass
 
     @abstractmethod
     def preprocess_documents(self, documents: List[Document], **kwargs) -> List[Dict]:
-        """LangChain Document 객체를 특정 DB에 맞는 형식으로 변환합니다."""
+        """LangChain Document to DB Style Object"""
         pass
 
     @abstractmethod
     def get_api_key(self) -> str:
-        """DB 연결을 위한 API 키 또는 인증 정보 반환"""
+        """Get API Key for DB Connect"""
         pass
