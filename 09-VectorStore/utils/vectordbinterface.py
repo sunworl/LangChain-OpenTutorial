@@ -66,7 +66,7 @@ class DocumentManager(ABC):
 """
 New Interface for VectorDB CRUD
 """
-# {DB이름}DocumentManager (e.g. ChromaDocumentManager)
+
 from typing import Optional, List, Iterable, Any, Dict
 
 

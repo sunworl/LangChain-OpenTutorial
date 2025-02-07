@@ -32,13 +32,13 @@ def _results_to_docs_and_scores(results: Any) -> List[Tuple[Document, float]]:
     # ]
     docs_and_scores = []
     for doc, metadata, score, doc_id in zip(
-        results["documents"][0],  # 문서 내용
-        results["metadatas"][0],  # 메타데이터
-        results["distances"][0],  # 거리 (유사도 점수)
-        results["ids"][0],  # 문서 ID
+        results["documents"][0],  # documents
+        results["metadatas"][0],  # metadata
+        results["distances"][0],  # distances(similarity)
+        results["ids"][0],  # document ID
     ):
         document = Document(page_content=doc, metadata=metadata)
-        document.metadata["id"] = doc_id  # id를 metadata에 추가
+        document.metadata["id"] = doc_id  # id insert in metadata
         docs_and_scores.append((document, score))
     return docs_and_scores
 
@@ -312,7 +312,7 @@ class ChromaDB(VectorDBInterface):
             "filter": filters,
             **kwargs,
         }
-        # similarity_search 구현
+        # similarity_search
         if score:
             configs["where_document"] = where_document
             results = self.similarity_search_with_score(
