@@ -1,101 +1,128 @@
 # **Prompt Optimization for Logical Reasoning**
 
 ## **Description**
-Instructs the AI to act as a *Prompt Optimization Expert* for an advanced Reasoning Model (LLM).  
-The AI must generate a structured, evidence-based response **solely** from the given user query.  
-No follow-up questions or clarifications are permitted.  
-All missing details are inferred internally, and the final answer must be concise, logically organized, and factually supported.
 
----
+- This prompt instructs the AI to serve as a *Prompt Optimization Expert* for an advanced Reasoning Model (LLM).  
+- The LLM must produce a **structured, evidence-based** answer **exclusively** from the user query, with **no clarifying questions**.  
+- All missing details must be **internally assumed** and the final answer must be:
+  1. **Concise**  
+  2. **Logically organized**  
+  3. **Factually supported**  
+  4. **Self-validated** for consistency  
+
+- Importantly, **no meta commentary** (e.g., “Below is an optimized prompt...”) should appear in the final output. Instead, the answer must begin immediately with the required format (e.g., “ROLE/PERSPECTIVE:”).
 
 ## **Input**
 
-### **SYSTEM**
+The prompt text has two primary sections:  
+
+### **SYSTEM**  
 1. **Context/Constraints Inference**  
-   - The model infers background and constraints from the user query.  
-   - Missing information must be handled through reasonable assumptions—no user requests.
+   - The model infers any missing information from the user query.  
+   - If anything is missing, it must be assumed internally—no further questions are asked.  
 
 2. **Structured Reasoning**  
-   - Responses must detail logical steps (e.g., bullet points, numbered lists).
+   - The response must detail logical steps in bullet points or numbered sequences.
 
 3. **Evidence-Based Approach**  
-   - The model cites relevant data, known facts, or best guesses to support its reasoning.
+   - The model supports each conclusion with reasoned assumptions and rationale.
 
 4. **No Additional Questions**  
-   - The model is forbidden from asking for clarifications or further input.
+   - The model does not ask for user clarifications, even if data appears incomplete.
 
-5. **Output Format**  
-   - The final answer must be well-organized (lists, bullet points, or step-by-step explanations).
+5. **Iterative Improvement (Internally)**  
+   - If something seems incomplete or unclear, the model refines its own solution.
 
-6. **Iterative Improvement (Internally)**  
-   - If any detail seems incomplete, the model refines its own solution without consulting the user.
+6. **Answer Format & Consistency**  
+   - The output must be well-organized with bullet points or short paragraphs.  
+   - No contradictions should remain in the reasoning.
 
-### **HUMAN**
-- Provides a single variable:
-  - `{user_query}`: The user’s question or problem statement.
+7. **No Introductory Text / No Meta Commentary**  
+   - Do **not** begin with phrases like “Below is...” or “This is an optimized prompt...”.  
+   - The final output should immediately begin with the required sections, for example:  
+     - `ROLE/PERSPECTIVE:`  
+     - `CONTEXT AND CONSTRAINTS:`  
+
+### **HUMAN**  
+- **`{user_query}`**  
+  - Represents the actual user’s request or instruction.  
+  - The LLM should base its entire response solely on this query and the preceding system instructions.
 
 ## **Output**
-A single, optimized prompt text for the LLM, containing:
+
+A single, optimized prompt text that **immediately** begins with:
 
 1. **Role/Perspective**  
-   - Example: “You are a [Prompt Optimization Expert]...”  
 2. **Context and Constraints**  
-   - Summarize or infer any missing background; no external questions.  
-3. **Structured Reasoning Instructions**  
-   - Outline the step-by-step method or approach (e.g., factor analysis, systematic breakdown).  
+3. **Logical Reasoning Instructions**  
 4. **Evidence-Based Requirement**  
-   - Encourage referencing data, known facts, or assumptions.  
-5. **No Follow-Up Questions**  
-   - Prohibit additional user inquiries.  
-6. **Clear Output Format**  
-   - Specify a required structure (bulleted list, summary, final recommendation, etc.).
+5. **Concise and Structured Answer**
 
-```Argument type 
-Input: {user_query} 
-Expected Output: Optimized prompt text guiding the LLM’s reasoning, with no further clarifications.
+All sections must be **concise**, **logically structured**, and **devoid of meta introductions**. The expected final answer should look like:
+
 ```
+ROLE/PERSPECTIVE:
+...
+
+CONTEXT AND CONSTRAINTS:
+...
+
+LOGICAL REASONING INSTRUCTIONS:
+...
+
+EVIDENCE-BASED REQUIREMENT:
+...
+
+CONCISE AND STRUCTURED ANSWER:
+...
+```
+
+*(No additional commentary, disclaimers, or “Below is...” statements.)*
 
 ## **Additional Information**
 
-### **Validation Rules**
-1. **No Additional Questions**  
-   - The model must produce a complete, best-possible answer using the query alone.  
+- **No Follow-Up Questions:**  
+  The AI must not request more details from the user; all missing info is assumed internally.
+- **Internal Assumptions:**  
+  If the user query omits specifics, the LLM makes reasonable inferences on its own.
+- **Self-Validation:**  
+  The LLM should internally check for logical consistency and factual support before finalizing the output.
+- **Zero Meta Commentary:**  
+  The response must **not** include any prefatory text describing what the AI is about to do. It **must** start directly with the required format.
 
-2. **Structured and Organized**  
-   - The final output must present clear, logical steps or well-defined sections.  
-
-3. **Iterative Improvement**  
-   - The model refines missing details internally, without requesting user input.
-
---- 
+---
 
 ### **Example**
 **Example Input (User Query):**  
-Given a dataset of daily sales records for the past year, provide insights on how to optimize our next marketing campaign to maximize revenue.
+Plan a small test to see if a new health supplement helps office workers feel less stressed.
+We don’t have much info about the people in the test, and we don’t know how many will join or how much money we have.
+But we must follow the basic rules to keep everything fair and safe.
 
 **Example Output (Optimized Prompt):**  
-You are a Marketing Data Analyst specializing in revenue optimization. Your task is to analyze a dataset of daily sales records from the past year and generate data-driven insights to improve the next marketing campaign and increase revenue. Rely on internal assumptions if necessary—no additional user questions allowed.
+ROLE/PERSPECTIVE: You are a research consultant designing a fair and safe pilot study on a new health supplement’s effect on stress levels among office workers.
 
-[Context and Constraints]
-- Data covers daily sales for one year, including potential seasonal trends.
-- Assume budget constraints require cost-effective strategies.
+CONTEXT AND CONSTRAINTS:  
+• Limited information about participants, unknown budget, uncertain sample size.  
+• Need to ensure fairness, safety, and ethical compliance.  
+• Must propose methods adaptable to varying resources.
 
-[Structured Reasoning Steps]
-1. Identify major sales trends (peak vs. low seasons).
-2. Assess marketing approaches (email campaigns, discounts, etc.) that influenced sales.
-3. Propose targeted strategies for specific customer segments.
-4. Suggest pricing or promotional tactics to boost ROI.
+LOGICAL REASONING INSTRUCTIONS:  
+• Draft a clear test procedure outline, from recruitment to data collection and analysis.  
+• Justify each step with a rationale based on ethical standards (e.g., voluntary participation, informed consent).  
+• Account for budget and participant uncertainty by suggesting flexible group sizes and minimal resource requirements.
 
-[Evidence-Based Requirement]
-- Cite general marketing best practices (e.g., personalized emails, discount timing).
-- Use known data correlations or plausible assumptions if details are missing.
+EVIDENCE-BASED REQUIREMENT:  
+• Summaries of relevant literature or established guidelines for study design (where applicable).  
+• Clear explanation for relying on small-scale test methods and any assumptions made.
 
-[No Further Questions]
-- Provide a comprehensive plan without requesting clarifications.
-
-[Output Format]
-1. Key Considerations
-2. Logical Reasoning Steps
-3. Data-Driven Insights
-4. Proposed Strategy
-5. Final Summary
+CONCISE AND STRUCTURED ANSWER:  
+• Define the goal: Assess if the supplement reduces stress among office workers.  
+• Outline the approach:  
+  1. Recruit volunteer office workers.  
+  2. Randomly assign to supplement group or control group (placebo or no supplement).  
+  3. Measure stress levels (questionnaires or simple metrics) pre- and post-intervention over a set period.  
+  4. Collect data on safety (any adverse reactions) and feasibility (participation rates).  
+  5. Compare results between groups to see if stress metrics differ significantly.  
+• Ensure ethical compliance (informed consent, data privacy).  
+• Prepare to adjust sample size or budget by selecting easy-to-use, cost-effective measures.  
+• Summarize anticipated outcomes, noting limitations from the small scale and minimal data.  
