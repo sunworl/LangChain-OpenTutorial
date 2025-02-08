@@ -1,64 +1,99 @@
-# **RAG Citation Prompt**
+# RAG Citation Prompt
 
-## **Description**
+## Description
 
-This prompt instructs the AI to function as a RAG (Retrieval-Augmented Generation) system that generates answers enriched with explicit source citations. The model is guided to incorporate references—such as document IDs, verbatim text snippets, or both—based on the retrieved documents used in crafting the response. The prompt covers strategies for both pre-processing and post-processing in the retrieval and generation stages, ensuring that all core evidence is properly attributed.
+This prompt instructs a Retrieval-Augmented Generation (RAG) application to generate detailed responses with in-line citations based on content retrieved from external documents. Every response must include in-line citation markers formatted as footnotes—with each citation providing the complete source URL and relevant metadata. The final output is a Markdown document featuring a consolidated **References** section that lists all citations sequentially.[^1][^2]
 
-## **Relevant Document**
+## Relevant Document
 
 - [How to get a RAG application to add citations](https://python.langchain.com/docs/how_to/qa_citations/)
 - [Build RAG with in-line citations](https://docs.llamaindex.ai/en/stable/examples/workflow/citation_query_engine/)
 - **Context Document:** [Attention Is All You Need (arXiv:1706.03762v7)](https://arxiv.org/html/1706.03762v7)
 
-## **Input**
+## Input
 
-- **SYSTEM:**
-  - Provides detailed instructions to include citations from the retrieved source(s) in the final answer.
-  - Specifies formatting rules and structured output requirements (using methods such as Pydantic schemas, XML formatting, or JSON structures) to ensure clarity, traceability, and verifiability of the sources.
-- **HUMAN:**
-  - Supplies the following variables:
-    - **{question}:** The user’s query (e.g., "What is the core idea behind the Transformer architecture described in this paper?").
-    - **{context}:** Retrieved document snippets or formatted content from the specified sources (e.g., content from [Attention Is All You Need](https://arxiv.org/html/1706.03762v7)), including source IDs and text excerpts.
-    - **{additional_instructions}:** (Optional) Further guidance on citation style or output format.
+- **SYSTEM:**  
+  "You are a professional research assistant. Generate a detailed answer to the user's query based solely on the provided document. Your response must include in-line citations in footnote format. Use the content loaded from the provided web source and ensure every citation contains the full URL."
 
-## **Output**
+- **HUMAN:**  
+  "{input}" (User's query)
 
-- The output must include:
-  - A synthesized answer that directly references the source documents.
-  - Clear and explicit citations in the specified format (e.g., `[Source X, Source Y]`) that indicate which document snippets support each part of the answer.
-- The answer should adhere to one of the following citation strategies:
-  1. **Direct Prompting:** Instructing the model to generate structured responses (such as XML or JSON) containing detailed citation information.
-  2. **Retrieval Post-Processing:** Compressing and filtering retrieved content to highlight only the most relevant portions, thereby implicitly defining citation boundaries.
-  3. **Generation Post-Processing:** Generating an initial answer and then re-prompting for an annotated version that includes precise citations.
+## Output
 
-## **Additional Information**
+The final output will be a Markdown document that includes:
 
-- **Citation Methods Overview:**
-  1. **Direct Prompting:**  
-     Use explicit instructions within the system prompt (for example, by defining an XML or JSON format) so that the model generates output that includes citation details.
-  2. **Retrieval Post-Processing:**  
-     Employ techniques such as text splitting (using tools like `RecursiveCharacterTextSplitter`) and embedding filters to compress documents, ensuring that only the most pertinent content is used for citation.
-  3. **Generation Post-Processing:**  
-     First generate an answer and then reissue a prompt asking the model to annotate its answer with precise citations.
-- These methods ensure that every part of the answer is traceable back to the original source, enhancing both the credibility and the transparency of the generated content.
+- A detailed answer with in-line citations (e.g., [^1], [^2], etc.) that reference the source documents.
+- A consolidated **References** section at the end where each citation is defined using the format:
+  - [^n]: [Short source description](full_source_url)
 
-## **Examples**
+## Tools
 
-1. **QUESTION:**  
-   What is the core idea behind the Transformer architecture described in this paper?
+- **WebBaseLoader:**
+  - **Description:** Retrieves document content from a specified URL. For this prompt, it loads the article from "https://arxiv.org/html/1706.03762v7" and extracts both the textual content and associated metadata.
+- **Additional Processing Tools:**  
+  Tools for text splitting, embeddings-based filtering, and structured output (e.g., using data models for annotations) can be employed to refine or post-process the response and citation annotations.
 
-   **ANSWER:**  
-   The core idea behind the Transformer architecture is to utilize a model that relies entirely on attention mechanisms, specifically self-attention, to draw global dependencies between input and output sequences—without using recurrence or convolutions. This design allows for significant parallelization during training and leads to improved performance in tasks such as machine translation. The Transformer architecture consists of stacked self-attention and feed-forward layers in both the encoder and decoder, enabling it to achieve state-of-the-art results in translation quality while being more efficient in training time compared to traditional recurrent or convolutional models [Source 4, Source 65].
+## Additional Information
 
-2. **QUESTION:**  
-   How does the Transformer model handle sequential data differently from traditional RNNs?
+- **Footnotes:**
+  - [^1]: "Citation" must include the complete URL along with any additional metadata, such as the document title or page number.
+  - [^2]: All URLs in citations must be fully qualified (e.g., starting with https://).
+- **Guidelines:**
+  - The final **References** section must be a single, merged list at the end of the document.
+  - The prompt and output must strictly adhere to the defined formatting rules to maintain clarity and consistency.
 
-   **ANSWER:**  
-   The Transformer model handles sequential data differently by completely eliminating recurrence and instead relying solely on attention mechanisms. This allows the Transformer to process all input positions simultaneously, enabling significant parallelization during training. In contrast, RNNs process sequences sequentially, which limits parallel computation and can lead to longer training times, especially for lengthy sequences [Source 4, Source 8, Source 7].
+## Examples
 
-   Additionally, the self-attention mechanism in the Transformer models dependencies between all positions in the input sequence regardless of their distance. This is particularly beneficial compared to RNNs, which often struggle with long-range dependencies due to their sequential nature [Source 8, Source 40]. Moreover, the computational complexity of self-attention is more favorable, as it connects all positions with a fixed number of operations, while RNNs require operations proportional to the sequence length [Source 43].
+Below are illustrative scenarios that demonstrate how the RAG Citation Prompt can be applied.
 
-   **Key Differences:**
+### Example 1: Basic RAG Chain
 
-   1. **Parallelization:** The Transformer allows for parallel processing of input sequences, whereas RNNs process them sequentially.
-   2. **Dependency Modeling:** The Transformer can model long-range dependencies more effectively through self-attention, while RNNs face challenges with this due to their sequential processing [Source 4, Source 8, Source 40].
+In this scenario, the application:
+
+- Uses a web-based document loader to fetch the content of the "Attention Is All You Need" paper.
+- Concatenates the loaded content to create the context for the language model.
+- Instructs the model to answer the query, "How does the Transformer model handle sequential data differently from traditional RNNs?"
+- Produces a detailed answer in Markdown that includes bullet-pointed explanations. Each bullet point features in-line citation markers (e.g., [^1]) that reference the source document.
+- Concludes with a single **References** section where each citation is listed with its full URL.
+
+### Example 2: Structured Output with Citation Identifiers
+
+This example illustrates how the prompt can be extended to generate structured output:
+
+- The document content is pre-formatted by assigning source IDs to different segments.
+- The prompt instructs the language model to produce an answer that incorporates these source IDs.
+- The final response is a structured answer that includes both the main content and a separate list of citation identifiers.
+- Despite the structured format, the answer maintains the required in-line footnote citations and a unified **References** section.
+
+### Example 3: XML-Based Output for Citations
+
+In this case, the prompt directs the model to return its response in an XML format:
+
+- The XML output contains an `<answer>` element that holds the generated text.
+- A `<citations>` element is included, which comprises multiple `<citation>` sub-elements. Each sub-element provides details such as a source identifier and an excerpt or quote from the source.
+- The XML response is subsequently parsed and reformatted into Markdown, ensuring that the in-line citations and consolidated **References** section conform to the prescribed format.
+
+### Example 4: Post-Processing with Retrieval and Filtering
+
+Here, additional pre-processing steps are applied before invoking the language model:
+
+- The document is split into manageable chunks using a text splitting mechanism.
+- An embeddings-based filtering tool selects the most relevant chunks based on the user’s query.
+- The filtered content forms the context for the prompt, and the language model generates a post-processed summary.
+- The resulting answer clearly highlights how the Transformer model differs from RNNs, with in-line citations (e.g., [^1]) included throughout the text.
+
+### Example 5: Annotation and Citation Enhancement
+
+This example demonstrates a two-step process for enhancing the generated answer:
+
+- **Step 1:** The language model produces an initial detailed answer based on the full document content.
+- **Step 2:** A subsequent annotation process enriches the answer by adding citation details, such as exact quotes and source IDs.
+- The final output merges the annotated information with the in-line citation markers and concludes with a consolidated **References** section that lists each citation in the required format.
+
+---
+
+## References
+
+- [^1]: How to get a RAG application to add citations (https://python.langchain.com/docs/how_to/qa_citations/)
+- [^2]: Build RAG with in-line citations (https://docs.llamaindex.ai/en/stable/examples/workflow/citation_query_engine/)
+- [^3]: Attention Is All You Need (arXiv:1706.03762v7) (https://arxiv.org/html/1706.03762v7)
