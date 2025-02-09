@@ -1,5 +1,5 @@
 import neo4j
-from .vectordbinterface import DocumentManager
+from vectordbinterface import DocumentManager
 from langchain_core.documents import Document
 from typing import List, Union, Dict, Any, Optional, Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -241,6 +241,69 @@ class Neo4jDBManager(DocumentManager):
             raise e
         else:
             return True
+        
+    def scroll(self, ids:List=None, filters:Dict =None, k=10, meta_keys = None, include_embedding=False, **kwargs) -> List:
+        """
+        Scroll items from Neo4j Database based on given condition.
+        If none of ids and filters are provided, will return k items in the index.
+        if both ids and filters are provided, filters will precedent.
+
+        Args:
+        - ids: Scroll items that matches the given ids.
+        - filters: Scroll items that matches the given filters.
+        - k: Number of items to return
+        - meta_keys: List of keys to include in metadata. If not provided, all metadatas will return except embedding. Default to None.
+        - include_embedding: Boolean to determine include embedding or not. Default to False.
+        
+        Return
+        - List of items.
+        """
+
+        base_query = (
+            f"MATCH (n:`{self.node_label}`)\n"
+        )
+        
+        if include_embedding:
+            meta_keys.append(self.embedding_node_property)
+            return_query = f"RETURN n LIMIT {k}"
+        else:
+            return_query = f"RETURN n {{.*, `{self.embedding_node_property}`:Null}} LIMIT {k}"
+
+        condition_query = ''
+
+        if filters is not None:
+            filter_queries = ["WHERE\n"]
+            for k, v in filters.items():
+                if isinstance(v,str):
+                    v = [v]
+                filter_queries.append(
+                    f"n.{k} in {v}\n"
+                )
+            condition_query = ''.join(filter_queries)
+            
+        elif ids is not None:
+            condition_query = f"n.id IN {ids}"
+        
+        final_query = base_query + condition_query + return_query
+
+        raw_results = self.client.execute_query(final_query)[0]
+
+        items = []
+        
+        for raw_result in raw_results:
+            value = raw_result.values()[0]
+            tmp = dict()
+            for k, v in value.items():
+                if meta_keys is not None:
+                    if k not in meta_keys:
+                        continue
+                if v is None:
+                    continue
+                tmp[k] = v
+            items.append(tmp)
+        
+        return items
+        
 
 
 METRIC = {
@@ -301,8 +364,8 @@ class Neo4jIndexManager:
             - metric : Distance used to calculate similarity. Default is `cosine`.
                 Supports `cosine`, `euclidean`, `maxinnerproduct`, `dotproduct`, `jaccard`
 
-        Returns:
-            - returns True if index is created successfully
+        Return:
+        Returns created Neo4jDBManager object connected to created or already existed index.
         """
         assert metric in METRIC.keys(), f"Choose metric among {list(METRIC.keys())}"
 
@@ -349,7 +412,7 @@ class Neo4jIndexManager:
             )
             print("Created index information")
             print(info_str)
-            return True
+            return Neo4jDBManager(self.client, index_name=index_name, embedding=embedding)
 
     def get_index(self, index_name: str) -> Dict:
         """Get information for given index name
