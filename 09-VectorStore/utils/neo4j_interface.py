@@ -1,5 +1,5 @@
 import neo4j
-from vectordbinterface import DocumentManager
+from .vectordbinterface import DocumentManager
 from langchain_core.documents import Document
 from typing import List, Union, Dict, Any, Optional, Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -8,7 +8,7 @@ from hashlib import md5
 import os, time
 
 
-class Neo4jDBManager(DocumentManager):
+class Neo4jDocumentManager(DocumentManager):
     def __init__(self, client, index_name, embedding):
         self.index_name = index_name
         self.client = client
@@ -136,7 +136,11 @@ class Neo4jDBManager(DocumentManager):
         text_batches = [
             texts[i : i + batch_size] for i in range(0, len(texts), batch_size)
         ]
-        id_batches = [ids[i : i + batch_size] for i in range(0, len(texts), batch_size)]
+        
+        id_batches = [
+            ids[i : i + batch_size] for i in range(0, len(texts), batch_size)
+        ]
+        
         meta_batches = [
             metadatas[i : i + batch_size] for i in range(0, len(texts), batch_size)
         ]
@@ -241,8 +245,16 @@ class Neo4jDBManager(DocumentManager):
             raise e
         else:
             return True
-        
-    def scroll(self, ids:List=None, filters:Dict =None, k=10, meta_keys = None, include_embedding=False, **kwargs) -> List:
+
+    def scroll(
+        self,
+        ids: List = None,
+        filters: Dict = None,
+        k=10,
+        meta_keys=None,
+        include_embedding=False,
+        **kwargs,
+    ) -> List:
         """
         Scroll items from Neo4j Database based on given condition.
         If none of ids and filters are provided, will return k items in the index.
@@ -254,42 +266,41 @@ class Neo4jDBManager(DocumentManager):
         - k: Number of items to return
         - meta_keys: List of keys to include in metadata. If not provided, all metadatas will return except embedding. Default to None.
         - include_embedding: Boolean to determine include embedding or not. Default to False.
-        
+
         Return
         - List of items.
         """
 
-        base_query = (
-            f"MATCH (n:`{self.node_label}`)\n"
-        )
-        
+        base_query = f"MATCH (n:`{self.node_label}`)\n"
+
         if include_embedding:
             meta_keys.append(self.embedding_node_property)
             return_query = f"RETURN n LIMIT {k}"
         else:
-            return_query = f"RETURN n {{.*, `{self.embedding_node_property}`:Null}} LIMIT {k}"
+            return_query = (
+                f"RETURN n {{.*, `{self.embedding_node_property}`:Null}} LIMIT {k}"
+            )
 
-        condition_query = ''
+        condition_query = ""
 
         if filters is not None:
-            filter_queries = ["WHERE\n"]
+            filter_queries = []
             for k, v in filters.items():
-                if isinstance(v,str):
+                if not isinstance(v, list):
                     v = [v]
-                filter_queries.append(
-                    f"n.{k} in {v}\n"
-                )
-            condition_query = ''.join(filter_queries)
-            
-        elif ids is not None:
-            condition_query = f"n.id IN {ids}"
-        
-        final_query = base_query + condition_query + return_query
+                filter_queries.append(f"n.{k} in {v}\n")
+            condition_query = " AND ".join(filter_queries)
+            condition_query = "WHERE\n" + condition_query
 
+        elif ids is not None:
+            condition_query = f"WHERE n.id IN {ids} "
+
+        final_query = base_query + condition_query + return_query
+        
         raw_results = self.client.execute_query(final_query)[0]
 
         items = []
-        
+
         for raw_result in raw_results:
             value = raw_result.values()[0]
             tmp = dict()
@@ -301,9 +312,8 @@ class Neo4jDBManager(DocumentManager):
                     continue
                 tmp[k] = v
             items.append(tmp)
-        
+
         return items
-        
 
 
 METRIC = {
@@ -369,6 +379,11 @@ class Neo4jIndexManager:
         """
         assert metric in METRIC.keys(), f"Choose metric among {list(METRIC.keys())}"
 
+        if index_name in self.list_indexes():
+            print(
+                f"Index with name {index_name} already exists.\nReturning Neo4jDBManager object."
+            )
+
         self.embedding_node_property = kwargs.get(
             "embedding_node_property", "embedding"
         )
@@ -397,8 +412,6 @@ class Neo4jIndexManager:
                 index_query, parameters_=parameters, database="neo4j"
             )
         except Exception as e:
-            print("Failed to create index")
-            print(e)
             raise e
 
         else:
@@ -412,7 +425,10 @@ class Neo4jIndexManager:
             )
             print("Created index information")
             print(info_str)
-            return Neo4jDBManager(self.client, index_name=index_name, embedding=embedding)
+            print("Index creation successful. Return Neo4jDBManager object.")
+            return Neo4jDocumentManager(
+                self.client, index_name=index_name, embedding=embedding
+            )
 
     def get_index(self, index_name: str) -> Dict:
         """Get information for given index name
