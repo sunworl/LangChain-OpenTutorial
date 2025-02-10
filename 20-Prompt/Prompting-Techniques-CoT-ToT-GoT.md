@@ -121,6 +121,8 @@
 
 ## Applications
 ### Example 1: CoT applied to a supervisor prompt in hierarchical multi-agent system
+- **Related Usage** : [17-LangGraph/03-Use-Cases/08-Hierarchical-Multi-Agent-Teams] (https://github.com/LangChain-OpenTutorial/LangChain-OpenTutorial/blob/main/17-LangGraph/03-Use-Cases/08-Hierarchical-Multi-Agent-Teams.ipynb)
+
 - The current tutorial features a hierarchical multi-agent structure, with a supervising agent in each team and a super-graph. The prompts for all three supervisors are the same, except for the members assigned to each supervisor. By defining members as a variable, the prompts can be shared among all three agents.
 - SYSTEM: 
     ```
@@ -141,57 +143,47 @@
     - `members` : A list of agents assigned to the supervisor.
 
 ### Example 2: ToT applied in math problem solving
-```
-Solve the math problem by exploring three different approaches.  
-- Start by identifying three possible methods.  
-- Solve step by step for each method.  
-- If a method leads to an incorrect answer, go back and try a different approach.  
-- Compare the final results and choose the best solution.  
-```
+- **Related Usage** : [17-LangGraph / 03-Use-Cases / 13-Tree-of-Thoughts] (https://github.com/LangChain-OpenTutorial/LangChain-OpenTutorial/pull/607)
 
-### Example 3: GoT applied in developing plotlines for a story
-```
-Develop a story with interconnected plotlines using a **Graph of Thoughts (GoT)** approach.  
-Structure the story as a network of nodes (key events, characters, themes) and edges (relationships, dependencies, influences).  
+- SYSTEM:
+    ```
+    You are an expert in solving math puzzles.
+    You will play a game called `Make 15`.
+    The objective of the game is to create a mathematically valid equation that evaluates **exactly** to 15.
 
-#### **Graph Structure:**
-- **Nodes:** Represent major story elements (e.g., character arcs, conflicts, resolutions).
-- **Edges:** Define how nodes influence and interact with each other.
-- **Bidirectional Links:** Allow feedback loops for evolving plot coherence.
+    You will be given four distinct numbers (ranging from 1 to 9).  
+    Your reasoning process must follow a **tree structure**, branching off from the parent node.  
+    At each step, you may **only select two of the remaining numbers** to compute a new number.
 
-#### **Story Graph Definition:**
-1. **Main Character’s Backstory (Node 1)**
-   - Define key past events that shape motivations.
-   - Connect to multiple future events through character choices.
+    [TREE STRUCTURE]
+    1. Start with an empty root node.
+    2. At each step, list the **remaining numbers**.
+    3. Select **two numbers** from the remaining set and apply **one** of the four basic arithmetic operations (`+`, `-`, `*`, `/`).
+    4. Replace the selected numbers with the computed result and **continue branching**.
+    5. Each parent node can have up to {k} child nodes, meaning you can explore up to {k} different operations at each step.
+    6. Evaluate whether the **final computed result** is **exactly 15**.
+    7. Stop when only **one number remains**, and check if it equals **15**.
 
-2. **Inciting Incident (Edge 1)**
-   - A pivotal event that propels the protagonist into action.
-   - Forms an edge connecting past (Node 1) to the main plot trajectory.
+    [RULES]
+    1. You must use **all four** numbers exactly **once**.
+    2. Each number must be used **exactly once** in the final equation.
+    3. Allowed arithmetic operations: **addition (+), subtraction (-), multiplication (*), and division (/).**
+    4. Every number must have **an operator before or after it**.
+    5. Use parentheses **explicitly** to clarify precedence when needed.
+    6. If the final result is **not** 15, backtrack and explore alternative branches.
 
-3. **Secondary Character’s Subplot (Node 2)**
-   - Develop a secondary character with independent goals.
-   - Create multiple edges linking their story to both the protagonist and external conflicts.
+    [INPUT FORMAT]
+    - The model will receive a list of **four distinct integers** from 1 to 9 (e.g., `[2, 3, 5, 7]`).
+    - The model should output a structured breakdown of its **tree-based reasoning**, including:
+    - **Each step of the tree**
+    - **The selected numbers and the applied operation**
+    - **The resulting new number**
+    - **The final computed equation**
+    - **Whether the equation successfully evaluates to 15**
+    ```
 
-4. **Intersection with Main Plot (Edge 2)**
-   - Identify a key moment where the subplot critically alters the protagonist’s journey.
-   - Allow reciprocal influence: the main plot may also change the secondary character’s arc.
-
-5. **Thematic Reinforcement Nodes**
-   - Define themes (e.g., redemption, ambition, betrayal).
-   - Connect to character decisions and key events.
-
-6. **Climax and Resolution (Node 3)**
-   - Ensure multiple edges link back to character development arcs.
-   - Introduce resolution pathways that emerge from prior interconnected nodes.
-
-#### **Dynamic Refinement Using GoT:**
-- Introduce **feedback loops** between nodes to refine coherence.
-- Re-evaluate relationships: can new edges strengthen story depth?
-- Allow non-linear evolution—if an event alters character motivation, dynamically update all affected nodes.
-```
-
-## **Related Usage**
-- [17-LangGraph/03-Use-Cases/08-Hierarchical-Multi-Agent-Teams] (https://github.com/LangChain-OpenTutorial/LangChain-OpenTutorial/tree/main/17-LangGraph/03-Use-Cases)
+- input_variables: ["k"]
+    - `k` : Number of child nodes to suggest at each step.
 
 ## **Reference**
 - [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/pdf/2201.11903)
