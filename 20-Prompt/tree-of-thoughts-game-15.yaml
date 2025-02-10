@@ -20,7 +20,7 @@ template: |
   [RULES]
   1. You must use **all four** numbers exactly **once**.
   2. Each number must be used **exactly once** in the final equation.
-  3. Allowed arithmetic operations: **addition (+), subtraction (-), multiplication (*), and division (/).**
+  3. Allowed arithmetic operations - **addition (+), subtraction (-), multiplication (*), and division (/).**
   4. Every number must have **an operator before or after it**.
   5. Use parentheses **explicitly** to clarify precedence when needed.
   6. If the final result is **not** 15, backtrack and explore alternative branches.

@@ -1,14 +1,14 @@
 # **Chain-of-Thought**, **Tree of Thoughts**, and **Graph of Thoughts**
 
 ## **Description**
-- *Chain-of-Thought* is a prompting technique that generates a series of intermediate steps for solving reasoning tasks.
-- *Tree of Thoughts* is a prompting technique that extends the *Chain-of-Thought* prompting. Instead of using a linear reasoning path, it uses a tree structure to explore multiple different reasoning paths.
-- *Graph of Thoughts* is a prompting technique extended from the *Chain-of-Thought* prompting and *Tree of Thoughts* prompting. By modeling the reasoning process as a grpah structure, a more complex network of thoughts can be generated.
+- *Chain-of-Thought (CoT)* is a prompting technique that generates a series of intermediate steps for solving reasoning tasks.
+- *Tree of Thoughts (ToT)* is a prompting technique that extends the *Chain-of-Thought* prompting. Instead of using a linear reasoning path, it uses a tree structure to explore multiple different reasoning paths.
+- *Graph of Thoughts (GoT)* is a prompting technique extended from the *Chain-of-Thought* prompting and *Tree of Thoughts* prompting. By modeling the reasoning process as a graph structure, a more complex network of thoughts can be generated.
 
 ## Example Prompts from Relevant Papers
 ### Example 1: Few-shot CoT
 - [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/pdf/2201.11903)
-    - Few-shot examplers for chain-of-thought prompting in math word problems
+    - Few-shot exemplars for chain-of-thought prompting in math word problems
         ```
         Q: There are 15 trees in the grove. Grove workers will plant trees in the grove today. After they are done, there will be 21 trees. How many trees did the grove workers plant today?
         A: There are 15 trees originally. Then there were 21 trees after some more were planted. So there must have been 21 - 15 = 6. The answer is 6.
@@ -167,7 +167,7 @@
     [RULES]
     1. You must use **all four** numbers exactly **once**.
     2. Each number must be used **exactly once** in the final equation.
-    3. Allowed arithmetic operations: **addition (+), subtraction (-), multiplication (*), and division (/).**
+    3. Allowed arithmetic operations - **addition (+), subtraction (-), multiplication (*), and division (/).**
     4. Every number must have **an operator before or after it**.
     5. Use parentheses **explicitly** to clarify precedence when needed.
     6. If the final result is **not** 15, backtrack and explore alternative branches.
@@ -185,9 +185,99 @@
 - input_variables: ["k"]
     - `k` : Number of child nodes to suggest at each step.
 
+### Example 3: GoT applied to document merging
+- Merge_prompt:
+    - SYSTEM:
+        ```
+        Merge the following {num} documents <Doc1> - <Doc{num}> into a single cohesive document.
+  
+        [GOAL]
+            - Maximize information retention to preserve all unique information.
+            - Minimize redundancy (avoid repeating similar content).
+            - Maintain logical flow and readability.
+            - Preserve the context and relationships between ideas.
+        
+        [IMPORTANT FORMATTING RULES]
+            - The final merged document **must be placed between `<Merged>` and `</Merged>` tags.**
+            - No extra text before `<Merged>` and no explanations after `</Merged>`.
+            ```
+            <Merged>
+            [Final merged document here]
+            </Merged>
+            ```
+              
+        [PROCESS]
+        1. Analysis:
+            - Break each document into logical subparts.
+            - Identify overlapping or complementary information and summarize it compactly.
+            - If there is conflicting information, resolve it by prioritizing factual accuracy.
+            - Extract all unique content.
+
+        2. Organization:
+            - Group related information across documents.
+            - Structure the final document in a logical order:
+
+        3. Merging:
+            - Combine similar points without losing meaning.
+            - The merged content must be shorter than the sum of original documents.
+
+        4. Output:
+            - The final document **must** be enclosed in `<Merged>` and `</Merged>` tags.
+            - Ensure concise yet comprehensive content.
+
+        5. Evaluation:
+            - Compare the merged document with the original sources.
+            - Scoring Guidelines:
+            - Redundancy Score: Minimize repeated phrases.
+            - Retention Score: Ensure all key details are preserved.
+            - Readability Score: The final document should be clear and well-structured.
+            - Consistency Check: Ensure no conflicting or contradictory statements remain.
+
+        Here are documents <Doc1> - <Doc{num}>:
+        {docs}
+        ```
+    - input_variables: ["num", "docs"]
+        - `num` : The number of documents to be merged.
+        - `docs` : Contents of the documents to be merged.
+- Analyze_prompt:
+    - SYSTEM:
+        ```
+        You are analyzing a merged document for redundancy and information retention.
+        Your task is to provide two scores in a specific JSON format.
+        
+        Guidelines:
+        1. Redundancy Score (0.0 to 1.0):
+            - 0.0 means no redundant content
+            - 1.0 means highly redundant content
+            - Score strictly: 0.4+ indicates significant duplicate content
+        
+        2. Retention Score (0.0 to 1.0):
+            - 0.0 means poor information retention
+            - 1.0 means perfect information retention
+            - Score strictly: below 0.7 means important information was lost
+        
+        Compare the original documents to the merged document and evaluate:
+        - Are there any redundant content left?
+        - Is the context and meaning maintained?
+        - Is the merged document shorter than the sum of original documents?
+        
+        Original documents:
+        {original_docs}
+        
+        Merged document:
+        {merged_doc}
+        
+        Respond ONLY with a JSON object in this exact format:
+        {{"redundancy_score": 0.XX, "retention_score": 0.XX}}
+        ```
+    - input_variables: ["original_docs", "merged_doc"]
+        - `original_docs` : The contents of the original documents.
+        - `merged_doc` : The merged document generated from the process.
+
 ## **Reference**
 - [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/pdf/2201.11903)
 - [Large Language Models are Zero-Shot Reasoners](https://arxiv.org/pdf/2205.11916)
 - [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/pdf/2305.10601)
 - [Github: Tree of Thoughts](https://github.com/princeton-nlp/tree-of-thought-llm)
 - [Graph of Thoughts: Solving Elaborate Problems with Large Language Models](https://arxiv.org/pdf/2308.09687)
+- [Github: Graph of Thoughts](https://github.com/spcl/graph-of-thoughts)
