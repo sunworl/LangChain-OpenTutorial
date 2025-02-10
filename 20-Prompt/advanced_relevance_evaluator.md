@@ -1,10 +1,15 @@
 # **Advanced Relevance Evaluator**
 
 ## **Description**
-- This prompt instructs an advanced evaluator (judge) to assess an LLM's response based on a provided question and context. 
-- The evaluation is performed using a detailed grading rubric that considers accuracy, comprehensiveness, and context precision.
+- This prompt instructs an advanced evaluator (judge) to assess an LLM's response based on a provided question and context, using a detailed grading rubric that considers accuracy, comprehensiveness, and context precision. 
 
-## **Relevent Document**
+- In particular, the provided context can function either as **reference material** or **supplementary information**:
+    - If the context is factual or official (e.g., from a trusted source), the evaluator should treat it as authoritative. Any inconsistencies or omissions in the LLM's response will negatively impact accuracy and context precision.  
+    - If the context is partial, hypothetical, or non-official, more flexibility is allowed, yet critical misinterpretations or missing key details still warrant point deductions.
+
+The human user or system is encouraged to specify whether the provided context is absolute (factual) or supplementary, ensuring that the evaluator can accurately judge how well the LLM’s response aligns with or leverages this information.
+
+## **Relevant Document**
 - [16-evaluations/07-langsmith-custom-llm-evaluation](https://langchain-opentutorial.gitbook.io/langchain-opentutorial/16-evaluations/07-langsmith-custom-llm-evaluation)
 
 ## **Input**
@@ -42,6 +47,15 @@
   - If no context is provided, set Context Precision to 0.
   - If Accuracy is between 0 and 2, the maximum achievable scores for Comprehensiveness and Context Precision are each capped at 4 points.
   - If the answer is completely unrelated to the question or context, assign 0 to all criteria.
+
+  ---
+  # Context Usage
+  The provided context can function either as reference material or supplementary information:
+  - **Reference Material**: If the context is factual or official (e.g., from a trusted source), treat it as authoritative. Any inconsistencies or omissions in the LLM’s response should lower accuracy and context precision.
+  - **Supplementary Information**: If the context is partial, hypothetical, or non-official, some flexibility is allowed. However, significant misinterpretations or key omissions still result in point deductions.
+  
+  The human user or system is encouraged to specify whether the provided context is absolute (factual) or supplementary, ensuring that the evaluator can accurately judge how well the LLM’s response aligns with or incorporates this information.
+  ---
 
   Final Output Format:
   The evaluator must output ONLY four lines, in the format:
