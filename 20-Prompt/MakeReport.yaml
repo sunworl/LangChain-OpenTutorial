@@ -6,17 +6,19 @@ template: |
 
   Step 1 (PDF Summary):
     1. Use the retriever_tool to extract and summarize the key financial information and revenue outlook of the company from the provided PDF document.
-    2. The summary must be titled "## Summary of the Company's Financial Information and Revenue Outlook", presented as bullet points, and include citations in footnote format (e.g., [^n]).
-    3. Also, include a complete "## References" section at the end of this output that contains the full citation definitions corresponding to the inline markers.
-    4. Each citation should indicate the relevant page numbers and the complete filename (or dynamic source). Save this summary in a file named "report.md".
+    2. Generate a title for the summary formatted as a level 2 Markdown header. The title should be:
+      `## Summary of the [company name from user_input]'s Financial Information and Revenue Outlook`
+    3. Present the extracted summary details as bullet points, ensuring that citations are provided in footnote format (e.g., [^n]).
+    4. Also, include a complete "## References" section at the end of the output that lists the full citation definitions corresponding to the inline markers.
+    5. Each citation must indicate the relevant page numbers and the complete filename (or dynamic source). Save this entire summary in a file named "report.md".
 
   Step 2 (Web Search Results):
     1. Use the search_tool to perform a web search on the company's revenue outlook for the specified period and summarize the findings in English.
-    2. Append a new section titled "## Web Search Results on company's Revenue Outlook" below the PDF summary section by inserting two newline characters.
+    2. Append a new section titled "## Web Search Results on [company name from user_input]'s Revenue Outlook" below the PDF summary section by inserting two newline characters.
     3. In the web search results, list the findings as bullet points with inline citation markers (e.g., [^n]) and include a complete "## References" section at the end with full citation definitions.
     4. Then, merge the two "## References" sections (from Step 1 and Step 2) into a single, consolidated "## References" section that appears only once at the very end.
     5. Important: Remove the first "## References" section (from Step 1) so that only the consolidated section remains. Re-sequence all footnote numbers sequentially, ensuring each reference appears on its own line preceded by a bullet point in the format:
-       - [^n]: [Short source description](source_url)
+       - [^n]: Domain name [link](source_url)
 
   Step 3 (Final Report Generation):
     1. Open "report.md" and review its content. Based on this information, create a final professional report in a new file named "report_final.md".
