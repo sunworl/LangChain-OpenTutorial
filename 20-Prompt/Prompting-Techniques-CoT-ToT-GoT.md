@@ -2,8 +2,8 @@
 
 ## **Description**
 - *Chain-of-Thought (CoT)* is a prompting technique that generates a series of intermediate steps for solving reasoning tasks. [^1]
-- *Tree of Thoughts (ToT)* is a prompting technique that extends the *Chain-of-Thought* prompting. Instead of using a linear reasoning path, it uses a tree structure to explore multiple different reasoning paths. [^3]
-- *Graph of Thoughts (GoT)* is a prompting technique extended from the *Chain-of-Thought* prompting and *Tree of Thoughts* prompting. By modeling the reasoning process as a graph structure, a more complex network of thoughts can be generated. [^5]
+- *Tree of Thoughts (ToT)* is a prompting technique that extends the *Chain-of-Thought* prompting. Instead of using a linear reasoning path, it uses a tree structure to explore multiple different reasoning paths. [^2]
+- *Graph of Thoughts (GoT)* is a prompting technique extended from the *Chain-of-Thought* prompting and *Tree of Thoughts* prompting. By modeling the reasoning process as a graph structure, a more complex network of thoughts can be generated. [^3]
 
 ## Example Prompts from Relevant Papers
 ### Example 1: *Few-shot CoT* for Math Word Problems [^1]
@@ -27,13 +27,13 @@ A: Olivia had 23 dollars. 5 bagels for 3 dollars each will be 5 x 3 = 15 dollars
 Q: {question}
 ```
 
-### Example 2: *Zero-shot CoT* [^2]
+### Example 2: *Zero-shot CoT* [^4]
 ```
 Q: {question}
 A: Let's think step by step.
 ```
 
-### Example 3: *ToT* for Creative Writing [^3] [^4]
+### Example 3: *ToT* for Creative Writing [^2] [^5]
 - cot_prompt
     ```
     Write a coherent passage of 4 short paragraphs. The end sentence of each paragraph must be: {input}
@@ -59,7 +59,7 @@ A: Let's think step by step.
     Analyze the following passage, then at the last line conclude "Thus the coherency score is {s}", where s is an integer from 1 to 10.
     ```
             
-### Example 4: *GoT* in Document Merging [^5] [^6]
+### Example 4: *GoT* in Document Merging [^3] [^6]
 - merge prompt
     ```
     Merge the following 4 NDA documents <Doc1> - <Doc4> into a single NDA, maximizing retained information and minimizing redundancy. Output only the created NDA between the tags <Merged> and </Merged>, without any additional text.
@@ -236,7 +236,7 @@ A: Let's think step by step.
     - input_variables: ["num", "docs"]
         - `num` : The number of documents to be merged.
         - `docs` : Contents of the documents to be merged.
-        
+
 - Analyze_prompt:
     - SYSTEM:
         ```
@@ -273,9 +273,14 @@ A: Let's think step by step.
         - `merged_doc` : The merged document generated from the process.
 
 ## **Reference**
-- [^1]: [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/pdf/2201.11903)
-- [^2]: [Large Language Models are Zero-Shot Reasoners](https://arxiv.org/pdf/2205.11916)
-- [^3]: [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/pdf/2305.10601)
-- [^4]: [Github: Tree of Thoughts](https://github.com/princeton-nlp/tree-of-thought-llm)
-- [^5]: [Graph of Thoughts: Solving Elaborate Problems with Large Language Models](https://arxiv.org/pdf/2308.09687)
-- [^6]: [Github: Graph of Thoughts](https://github.com/spcl/graph-of-thoughts)
+[^1]: [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/pdf/2201.11903)
+
+[^2]: [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/pdf/2305.10601)
+
+[^3]: [Graph of Thoughts: Solving Elaborate Problems with Large Language Models](https://arxiv.org/pdf/2308.09687)
+
+[^4]: [Large Language Models are Zero-Shot Reasoners](https://arxiv.org/pdf/2205.11916)
+
+[^5]: [Github: Tree of Thoughts](https://github.com/princeton-nlp/tree-of-thought-llm)
+
+[^6]: [Github: Graph of Thoughts](https://github.com/spcl/graph-of-thoughts)
